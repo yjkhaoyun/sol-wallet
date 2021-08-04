@@ -1,6 +1,6 @@
 <template>
-	<view>
-		
+	<view class="page">
+		<web-view  class="webview" src="../../static/srm-swap/index.html"></web-view>
 	</view>
 </template>
 
@@ -17,6 +17,11 @@
 	}
 </script>
 
-<style>
-
+<style scoped >
+	.page{
+		flex: 1;
+	}
+	.webview{
+		flex: 1;
+	}
 </style>
