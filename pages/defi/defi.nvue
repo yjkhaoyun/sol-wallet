@@ -1,12 +1,16 @@
 <template>
 	<view class="page">
-		<web-view  class="webview" src="../../static/react-test/index.html"
+		<web-view  class="webview" src="http://numtime.natapp1.cc"
 		ref="webview" @pagestart="onPageStart"  @onPostMessage="handlePostMessage"
 		         @pagefinish="Finish" @error="" @receivedtitle="Title"></web-view>
+	<view class="sendMessage">
+	<button  @click="sendMessageToWebview">点我给webview传参</button>
+	</view>
 	</view>
 </template>
 
 <script>
+	
 	export default {
 		data() {
 			return {
@@ -14,8 +18,31 @@
 			}
 		},
 		onShow(){
+			//this.mnemonicToAcc()
+			console.log(uni.getStorageSync('keypair'))
 		},
 		methods: {
+			
+			//异步获取区块哈希,返回一个字符串
+			async getBlockHash(){
+				var url = 'https://api.mainnet-beta.solana.com'
+				var [error, res] = await uni.request({
+				    url: url, //仅为示例，并非真实接口地址。
+					method:"POST",
+				    data: {
+						id:1,
+						jsonrpc:'2.0' ,
+						method:"getRecentBlockhash",
+						params: [{"commitment": "finalized"}]
+				    },
+				    header: {
+				        'content-type': 'application/json' //自定义请求头信息
+				        //'content-type': 'application/x-www-form-urlencoded' //自定义请求头信息
+				    },
+				});
+				console.log(res.data.result.value.blockhash)
+				return res.data.result.value.blockhash
+			},
 			onPageStart: function(e) {
 				console.log(e);
 				// 监听页面加载成功
@@ -44,6 +71,41 @@
 					title:"我在UNI-APP里面接收到网页传参",
 					content: JSON.stringify(data.detail)
 				})
+			},
+			//给网页发送参数
+			sendMessageToWebview(){
+				if(!this.PageStart) {
+					uni.showModal({
+						title:"暴躁的提示",
+						content:"只有网页加载成功了才可以传参过去，不然无效哦。。"
+					})
+					return false;
+				}
+				/**
+				 * 下面的 jsfunction 代码你要自己在你的网页里面写一个方法 大致如下
+				 *  下面就是你基本的html知识了，我就不想说什么了，自己学。
+				 *	window.jsfunction = function(data){
+				 *		console.log('data', data);
+				 *	}
+				 */
+				var keypair = uni.getStorageSync('keypair')
+				uni.showModal({
+					title: '你想干啥？',
+					content: '点下面的按钮说你想传参的类型是啥',
+					cancelText: '传字符串',
+					confirmText: '传参对象',
+					success: res => {
+						if(res.confirm){
+							
+							
+							//this.$refs.webview.evalJs("jsfunction({'aaa':'bbb','ccc':'dddd'})");
+							this.$refs.webview.evalJs('jsfunction('+JSON.stringify(keypair)+')');
+						}else{
+							// jsfunction 其实就是你自己在你的webview 里面写个方法。
+							this.$refs.webview.evalJs("jsfunction('我就是个参数啊')");
+						}
+					},
+				});
 			}
 		}
 	}

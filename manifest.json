@@ -8,7 +8,7 @@
     /* 5+App特有相关 */
     "app-plus" : {
 		"nvueCompiler" : "uni-app",
-		"renderer": "native", //App端纯原生渲染模式
+		//"renderer": "native", //App端纯原生渲染模式
 		"compilerVersion" : 3,
 		"modules" : {},
 		"confusion" : {
